@@ -1,0 +1,6 @@
+@ElysiumApi_HostAddress = http://localhost:5101
+
+GET {{ElysiumApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
