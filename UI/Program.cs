@@ -1,28 +1,150 @@
-﻿using ElysiumBusinessServices;
+﻿using System;
+using System.Collections.Generic;
+using Elysium;
+using ElysiumBusinessServices;
+using MimeKit;
+using MailKit.Net.Smtp;
+
 namespace UI
 {
     internal class Program
     {
         static void Main(string[] args)
         {
+            TransactionServices transactionServices = new TransactionServices();
             GetServices getServices = new GetServices();
+            bool exit = false;
 
-
-            Console.WriteLine("Welcome!");
-
-            var users = getServices.GetAllUsers();
-
-            foreach (var item in users)
+            while (!exit)
             {
-                Console.WriteLine("Username: " + item.username);
-                Console.WriteLine("Password: " + item.password);
-                Console.WriteLine("Email: " + item.email);
-                Console.WriteLine("Remaining Balance: " + item.balance);
+                Console.WriteLine("\nWelcome to Elysium! The Best Internet Cafe in the South!");
+                Console.WriteLine("1. Create Account");
+                Console.WriteLine("2. View Remaining Balance");
+                Console.WriteLine("3. Store Info");
+                Console.WriteLine("4. Exit");
 
+                if (!int.TryParse(Console.ReadLine(), out int option))
+                {
+                    Console.WriteLine("Invalid input. Please enter a number between 1 and 4.");
+                    continue;
+                }
+
+                switch (option)
+                {
+                    case 1:
+                        CreateAccount(transactionServices);
+                        break;
+                    case 2:
+                        ViewBalance(getServices);
+                        break;
+                    case 3:
+                        ShowStoreInfo();
+                        break;
+                    case 4:
+                        exit = true;
+                        Console.WriteLine("Thank you for visiting Elysium Internet Cafe!");
+                        break;
+                    default:
+                        Console.WriteLine("Invalid option. Please choose again.");
+                        break;
+                }
+            }
+        }
+
+        static void CreateAccount(TransactionServices transactionServices)
+        {
+            Console.WriteLine("Enter a username:");
+            string username = Console.ReadLine();
+            Console.WriteLine("Enter a password:");
+            string password = Console.ReadLine();
+            Console.WriteLine("Enter your email:");
+            string email = Console.ReadLine();
+
+            // By default, new users get a free Juno (1 hour) as balance
+            string balance = "Juno - 1 Hour";
+
+            User newUser = new User
+            {
+                username = username,
+                password = password,
+                email = email,
+                balance = balance
+            };
+
+            if (transactionServices.CreateUser(newUser))
+            {
+                SendWelcomeEmail(newUser);
+                Console.WriteLine("Account created successfully and welcome email sent.");
+            }
+            else
+            {
+                Console.WriteLine("Failed to create account. Username might already exist.");
+            }
+        }
+
+        static void ViewBalance(GetServices getServices)
+        {
+            Console.WriteLine("Enter your username:");
+            string username = Console.ReadLine();
+
+            User foundUser = getServices.GetUser(username);
+            if (foundUser != null)
+            {
+                Console.WriteLine($"Username: {foundUser.username}");
+                Console.WriteLine($"Remaining Balance: {foundUser.balance}");
+            }
+            else
+            {
+                Console.WriteLine("User not found.");
+            }
+        }
+
+        static void ShowStoreInfo()
+        {
+            Console.WriteLine("\nStore Info:");
+            Console.WriteLine("Store Opening - 24/7 365");
+            Console.WriteLine("Store Address - Block 5 Lot 7 Ruby St. Pacita 1A San Pedro, Laguna");
+            Console.WriteLine("\nCredit System:");
+            Console.WriteLine("Juno - 1 Hour");
+            Console.WriteLine("Deus - 2 Hours");
+            Console.WriteLine("Illimitados - All Day");
+        }
+
+        static void SendWelcomeEmail(User user)
+        {
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("Elysium Internet Cafe", "do-not-reply@elysium.com"));
+            message.To.Add(new MailboxAddress(user.username, user.email));
+            message.Subject = "Welcome to Elysium Internet Cafe";
+
+            message.Body = new TextPart("html")
+            {
+                Text = $"<h1>Welcome, {user.username}!</h1>" +
+                       $"<p>Your account has been successfully created.</p>" +
+                       $"<p>Here are your login details:</p>" +
+                       $"<p>Username: {user.username}</p>" +
+                       $"<p>Password: {user.password}</p>" +
+                       $"<p>Balance: {user.balance}</p>"
+            };
+
+            using (var client = new SmtpClient()) 
+            {
+                try
+                {
+                    client.Connect("sandbox.smtp.mailtrap.io", 2525, MailKit.Security.SecureSocketOptions.StartTls);
+                    client.Authenticate("d9ed34b31df4d9", "8b7dcfdc441048");
+                    client.Send(message);
+                    Console.WriteLine("Welcome email sent successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error sending email: {ex.Message}");
+                }
+                finally
+                {
+                    client.Disconnect(true);
+                }
             }
         }
     }
-
 }
-
-

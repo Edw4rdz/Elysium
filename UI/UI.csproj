@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ElysiumBusinessServices\ElysiumBusinessServices.csproj" />
     <ProjectReference Include="..\ElysiumData\ElysiumData.csproj" />
     <ProjectReference Include="..\Elysium\Elysium.csproj" />
