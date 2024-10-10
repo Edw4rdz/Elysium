@@ -42,10 +42,10 @@ namespace UI
                         break;
                     case 4:
                         exit = true;
-                        Console.WriteLine("Thank you for visiting Elysium Internet Cafe!");
+                        Console.WriteLine("Thank you for visiting Elysium Internet Cafe! Have a nice day!");
                         break;
                     default:
-                        Console.WriteLine("Invalid option. Please choose again.");
+                        Console.WriteLine("Invalid option. Please choose again. :(");
                         break;
                 }
             }
@@ -60,8 +60,8 @@ namespace UI
             Console.WriteLine("Enter your email:");
             string email = Console.ReadLine();
 
-            // By default, new users get a free Juno (1 hour) as balance
-            string balance = "Juno - 1 Hour";
+        
+            string balance = "Juno";
 
             User newUser = new User
             {
@@ -115,15 +115,15 @@ namespace UI
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress("Elysium Internet Cafe", "do-not-reply@elysium.com"));
             message.To.Add(new MailboxAddress(user.username, user.email));
-            message.Subject = "Welcome to Elysium Internet Cafe";
+            message.Subject = "Welcome to Elysium Internet Cafe! The Home of the Best Internet Cafe of the South!!!";
 
             message.Body = new TextPart("html")
             {
-                Text = $"<h1>Welcome, {user.username}!</h1>" +
+                Text = $"<h2>Welcome, {user.username}!</h2>" +
                        $"<p>Your account has been successfully created.</p>" +
                        $"<p>Here are your login details:</p>" +
-                       $"<p>Username: {user.username}</p>" +
-                       $"<p>Password: {user.password}</p>" +
+                       $"<p><i>Username: {user.username}</p></i>" +
+                       $"<p><i>Password: {user.password}</p></i>" +
                        $"<p>Balance: {user.balance}</p>"
             };
 
@@ -132,7 +132,7 @@ namespace UI
                 try
                 {
                     client.Connect("sandbox.smtp.mailtrap.io", 2525, MailKit.Security.SecureSocketOptions.StartTls);
-                    client.Authenticate("d9ed34b31df4d9", "8b7dcfdc441048");
+                    client.Authenticate("aedfa5dfd8d09b", "3abc583983ef95");
                     client.Send(message);
                     Console.WriteLine("Welcome email sent successfully.");
                 }
